@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+  <title>Books</title>
+</head>
+<body onload="loadInfoCurrentBook()">
+  <a href="index.html" id="backButton">Back</a>
+  <table id="book-table">    
+    <tbody id="book-table-body">
+      <tr>
+        <td>Name</td>
+        <td id="name"></td>
+      </tr>
+      <tr>
+        <td>Type</td>
+        <td id="type"></td>
+      </tr>
+      <tr>
+        <td>Author</td>
+        <td id="author">
+          <span id="firstname"></span>
+          <span id="lastname"></span>
+        </td>
+      </tr>
+      <tr>
+        <td>Created Date</td>
+        <td id="createdDate"></td>
+      </tr>
+      <tr>
+        <td>Count Pages</td>
+        <td id="countPages"></td>
+      </tr>
+      <tr>
+        <td>Cost</td>
+        <td id="cost"></td>
+      </tr>
+      <tbody id="audiobook-fields" hidden>
+        <tr>
+          <td>Type Disk</td>
+          <td id="typeDisk"></td>
+        </tr>
+        <tr>
+          <td>Count Disk</td>
+          <td id="countDisk"></td>
+        </tr>     
+      </tbody>
+      <tbody id="textbook-fields" hidden>
+        <tr>
+          <td>Type science</td>
+          <td id="typeScience"></td>
+        </tr>
+        <tr>
+          <td>Type Institution</td>
+          <td id="typeInstitution"></td>
+        </tr>
+      </tbody>
+    </tbody>
+  </table>
+  <script src="../js/index.js"></script>    
+</body>
+</html>

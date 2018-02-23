@@ -1,0 +1,32 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "name": "FirstBook",
+      "type": "Audiobook",
+      "author": {
+        "firstname": "Firstname",
+        "lastname": "Lastname"
+      },
+      "typeDisk": "CD",
+      "countDisk": "3",
+      "createdDate": "2018-01-01",
+      "countPages": "250",
+      "cost": "25"
+    },
+    {
+      "id": 2,
+      "name": "SecondBook",
+      "type": "Textbook",
+      "author": {
+        "firstname": "Test",
+        "lastname": "Test"
+      },
+      "typeScience": "History",
+      "typeInstitution": "School",
+      "createdDate": "2018-01-01",
+      "countPages": "598",
+      "cost": "25"
+    }
+  ]
+}

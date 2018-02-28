@@ -1,150 +1,151 @@
+'use strict'
 // Objects
 
-function Author(firstname, lastname) {
-  this.firstname = firstname;
-  this.lastname = lastname;
+class Author {
+  constructor(firstname, lastname) {
+    this.firstname = firstname;
+    this.lastname = lastname;
+  }
+
+  toString() {
+    return `${this.firstname} ${this.lastname}`;
+  }
 }
 
-Author.prototype.toString = function() {
-  return this.firstname + ' ' + this.lastname;
-}
+class Book {
+  constructor(id, name, type, author) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.author = author;
+  }
 
-function Book(id, name, type, author) {
-  var _createdDate;
-  var _countPages;
-  var _cost
+  get CreatedDate() {
+    return this.createdDate;
+  }
 
-  this.id = id;
-  this.name = name;
-  this.type = type;
-  this.author = author;  
-
-  this.getCreatedDate = function() {
-      return this.createdDate;
-  };
-  
-  this.setCreatedDate = function(date) {
+  set CreatedDate(date) {
     if(date > Date.now())
       throw "Date must be less when now";
     this.createdDate = date;
   }
 
-  this.getCountPages = function() {
+  get CountPages() {
     return this.countPages;
   }
 
-  this.setCountPages = function(count) {
+  set CountPages(count) {
     if(count <= 10)
       throw "Count pages must be more than 10";
     this.countPages = count;
   }
 
-  this.setCost = function(cost) {
+  get Cost() {
+    return this.cost;
+  }
+
+  set Cost(cost) {
     if(cost <= 0)
       throw "Cost must be more than 0";
     this.cost = cost;
   }
+}
 
-  this.getCost = function() {
-    return this.cost;
+class Audiobook extends Book {
+  constructor(id, name, type, author, typeDisk = "CD", countDisk = 1) {
+    super(id, name, type, author);
+    this.typeDisk = typeDisk;
+    this.countDisk = countDisk;
   }
 }
 
-function Audiobook(id, name, type, author, typeDisk, countDisk) {
-  Book.call(this, id, name, type, author);
-
-  this.typeDisk = typeDisk;
-  this.countDisk = countDisk;
+class Textbook extends Book {
+  constructor(id, name, type, author, typeScience = "", typeInstitution = "") {
+    super(id, name, type, author);
+    this.typeScience = typeScience;
+    this.typeInstitution = typeInstitution;
+  }
 }
-
-Audiobook.prototype = Object.create(Book.prototype);
-
-function Textbook(id, name, type, author, typeScience, typeInstitution) {
-  Book.call(this, id, name, type, author);
-
-  this.typeScience = typeScience;
-  this.typeInstitution = typeInstitution;
-}
-
-Textbook.prototype = Object.create(Book.prototype);
 
 // HtmlHelper
 
-function HtmlHelper() {
-  this.baseUrl = 'http://localhost:3000';
-}
+class HtmlHelper {
+  constructor() {
+    this.baseUrl = 'http://localhost:3000';
+  } 
 
-HtmlHelper.prototype.get = function (url, query, successClb, faliedClb) {
-  var xhr = new XMLHttpRequest();
-  var fullUrl = this.baseUrl + url;
-  xhr.open('GET', fullUrl);
-  xhr.onreadystatechange = function() {
-    if(xhr.readyState != 4) return;
+  get(url, query, successClb, faliedClb) {
+    let xhr = new XMLHttpRequest();
+    let fullUrl = this.baseUrl + url;
+    xhr.open('GET', fullUrl);
+    xhr.onreadystatechange = () => {      
+      if(xhr.readyState != 4) return;
 
-    if(xhr.status == 200) {
-      successClb(JSON.parse(xhr.responseText));
-    } else {
-      faliedClb();
+      if(xhr.status == 200) {
+        successClb(JSON.parse(xhr.response));
+      } else {
+        faliedClb();
+      }
     }
+    xhr.send();
   }
-  xhr.send();
-}
 
-HtmlHelper.prototype.post = function(url, body, successClb, faliedClb) {
-  var xhr = new XMLHttpRequest();
-  var fullUrl = this.baseUrl + url;
-  xhr.open('POST', fullUrl);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onreadystatechange = function() {
-    if(xhr.readyState != 4) return;
-
-    if(xhr.status == 201) {
-      successClb();
-    } else {
-      faliedClb();
+  post(url, body, successClb, faliedClb) {
+    let xhr = new XMLHttpRequest();
+    let fullUrl = this.baseUrl + url;
+    xhr.open('POST', fullUrl);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if(xhr.readyState != 4) return;
+  
+      if(xhr.status == 201) {
+        successClb();
+      } else {
+        faliedClb();
+      }
     }
+    xhr.send(body);
   }
-  xhr.send(body);
-}
 
-HtmlHelper.prototype.put = function(url, id, body, successClb, faliedClb) {
-  var xhr = new XMLHttpRequest();
-  var fullUrl = this.baseUrl + url + '/' + id;
-  xhr.open('PUT', fullUrl);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onreadystatechange = function() {
-    if(xhr.readyState != 4) return;
-
-    if(xhr.status == 200) {
-      successClb();
-    } else {
-      faliedClb();
+  put(url, id, body, successClb, faliedClb) {
+    let xhr = new XMLHttpRequest();
+    let fullUrl = this.baseUrl + url + '/' + id;
+    xhr.open('PUT', fullUrl);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if(xhr.readyState != 4) return;
+  
+      if(xhr.status == 200) {
+        successClb();
+      } else {
+        faliedClb();
+      }
     }
+    xhr.send(body);
   }
-  xhr.send(body);
-}
 
-HtmlHelper.prototype.delete = function(url, id, successClb, faliedClb) {
-  var xhr = new XMLHttpRequest();
-  var fullUrl = this.baseUrl + url + "/" + id;
-  xhr.open('DELETE', fullUrl);
-  xhr.onreadystatechange = function() {
-    if(xhr.readyState != 4) return;
-
-    if(xhr.status == 200) {
-      successClb();
-    } else {
-      faliedClb();
+  delete(url, id, successClb, faliedClb) {
+    let xhr = new XMLHttpRequest();
+    let fullUrl = this.baseUrl + url + "/" + id;
+    xhr.open('DELETE', fullUrl);
+    xhr.onreadystatechange = () => {
+      if(xhr.readyState != 4) return;
+  
+      if(xhr.status == 200) {
+        successClb();
+      } else {
+        faliedClb();
+      }
     }
+    xhr.send();
   }
-  xhr.send();
 }
 
 // ParseObjects
 
 function parseJsonToBook(element) {
-  var book = {};
-  var author = new Author(element.author.firstname, element.author.lastname);
+  let book = {};
+  let author = new Author(element.author.firstname, element.author.lastname);
   if(element.type == 'Audiobook') {
     book = new Audiobook(element.id, element.name, element.type, author, element.typeDisk,
         element.countDisk);
@@ -154,43 +155,41 @@ function parseJsonToBook(element) {
   } else if(element.type == "Book") {
     book = new Book(element.id, element.name, element.type, author);
   }
-  book.setCreatedDate(element.createdDate);
-  book.setCountPages(element.countPages);
-  book.setCost(element.cost);
+  book.CreatedDate = element.createdDate;
+  book.CountPages = element.countPages;
+  book.Cost = element.cost;
   return book;
 }
 
 // WorkingWithPage
 
 function createTable(data) {
-  for (var item in data) {
+  for (let item in data) {
     if (data.hasOwnProperty(item)) {
-      var book = parseJsonToBook(data[item]);
-      var tr = document.createElement("tr");
+      let book = parseJsonToBook(data[item]);
+      let tr = document.createElement("tr");
       tr.setAttribute("data-id", book.id);
-      tr.onclick = function() {
-        document.location = "info.html?id=" + this.getAttribute("data-id");
-      }
+      tr.onclick = () => document.location = `info.html?id=${this.getAttribute("data-id")}`;      
       tr.id = "Book" + book.id;
-      var values = [book.id, book.name, book.type, book.author.toString(), book.getCreatedDate(),
-         book.getCountPages(), book.getCost()];
-      for (var i = 0; i < values.length; i++) {
-        var td = document.createElement("td");
-        var text = document.createTextNode(values[i]);
+      let values = [book.id, book.name, book.type, book.author.toString(), book.CreatedDate,
+         book.CountPages, book.Cost];
+      for (let i = 0; i < values.length; i++) {
+        let td = document.createElement("td");
+        let text = document.createTextNode(values[i]);
         td.appendChild(text);
         tr.appendChild(td);
       }
-      var td = document.createElement("td");
-      var editLink = document.createElement("a");
-      editLink.href = 'edit.html?id=' + book.id;
-      var text = document.createTextNode("Edit ");
+      let td = document.createElement("td");
+      let editLink = document.createElement("a");
+      editLink.href = `edit.html?id=${book.id}`;
+      let text = document.createTextNode("Edit ");
       editLink.appendChild(text);      
       td.appendChild(editLink); 
-      var deleteLink = document.createElement("a");
+      let deleteLink = document.createElement("a");
       deleteLink.setAttribute("data-id", book.id);
-      var textDelete = document.createTextNode(" Delete");      
-      deleteLink.onclick = function(ev) {
-        var result = confirm("Are you sure?")
+      let textDelete = document.createTextNode(" Delete");      
+      deleteLink.onclick = ev => {
+        let result = confirm("Are you sure?")
         if(result)
           deleteBook(this.getAttribute("data-id"));
         ev.preventDefault();
@@ -208,9 +207,9 @@ function createTable(data) {
 
 function getJsonBookFromField() {
   document.getElementById("form-book");
-  var book = {};
-  var bookType = document.getElementById("type").value;  
-  var data = {
+  let book = {};
+  let bookType = document.getElementById("type").value;  
+  let data = {
     name: document.getElementById("name").value,
     type: bookType,
     author : {
@@ -240,46 +239,46 @@ function getJsonBookFromField() {
         new Author(data.author.firstname, data.author.lastname));
       break;  
   }
-  book.setCreatedDate(data.createdDate);
-  book.setCountPages(data.countPages);
-  book.setCost(data.cost);
+  book.CreatedDate = data.createdDate;
+  book.CountPages = data.countPages;
+  book.Cost = data.cost;
   return JSON.stringify(book);
 }
 
 function postBook() {  
-  var book = getJsonBookFromField();
-  var htmlHelper = new HtmlHelper();
-  htmlHelper.post("/books", book, function() {
+  let book = getJsonBookFromField();
+  let htmlHelper = new HtmlHelper();
+  htmlHelper.post("/books", book, () => {
     alert("Success");
     document.location = "create.html";
-  }, function() {alert("Error");});  
+  }, () => alert("Error"));  
 }
 
 function putBook() {  
-  var book = getJsonBookFromField();
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
-  htmlHelper.put("/books", id, book, function() {alert("Success");}, function() {alert("Error");});
+  let book = getJsonBookFromField();
+  let htmlHelper = new HtmlHelper();
+  let url = new URL(document.location.href);
+  let id = url.searchParams.get("id");
+  htmlHelper.put("/books", id, book, () => alert("Success"), () => alert("Error"));
 }
 
 function deleteBook(id) {
-  var htmlHelper = new HtmlHelper();
-  htmlHelper.delete("/books", id, function() {
+  let htmlHelper = new HtmlHelper();
+  htmlHelper.delete("/books", id, () => {
     document.getElementById("Book"+id).remove();
     alert("Success");    
-  }, function() {alert("Error");});  
+  }, () => alert("Error"));  
 }
 
 function loadInfoCurrentBook() {
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
-  htmlHelper.get("/books/"+id, "", fillInfoFields, function() {alert("Error");});
+  let htmlHelper = new HtmlHelper();
+  let url = new URL(document.location.href);
+  let id = url.searchParams.get("id");
+  htmlHelper.get("/books/"+id, "", fillInfoFields, () => alert("Error"));
 }
 
 function fillInfoFields(data) {
-  var book = parseJsonToBook(data);
+  let book = parseJsonToBook(data);
   if(book instanceof Audiobook) {
     document.getElementById("typeDisk").innerText = book.typeDisk;
     document.getElementById("countDisk").innerText = book.countDisk;
@@ -298,14 +297,14 @@ function fillInfoFields(data) {
 }
 
 function loadCurrentBook() {
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
-  htmlHelper.get("/books/"+id, "", fillFormFields, function() {alert("Error");});
+  let htmlHelper = new HtmlHelper();
+  let url = new URL(document.location.href);
+  let id = url.searchParams.get("id");
+  htmlHelper.get("/books/"+id, "", fillFormFields, () => alert("Error"));
 }
 
 function fillFormFields(data) {
-  var book = parseJsonToBook(data);
+  let book = parseJsonToBook(data);
   if(book instanceof Audiobook) {
     document.getElementById("typeDisk").value = book.typeDisk;
     document.getElementById("countDisk").value = book.countDisk;
@@ -347,19 +346,19 @@ function goToIndex() {
 }
 
 function loadIndexPage() {
-  var htmlHelper = new HtmlHelper();
-  htmlHelper.get('/books', "", createTable, null);
+  let htmlHelper = new HtmlHelper();
+  htmlHelper.get('/books', "", createTable, () => alert("Error"));
 }
 
 //Validation
 
 function setValidation() {
-  document.getElementById("name").addEventListener("invalid", function() {showErrorMessage("name-error", false);});
-  document.getElementById("firstname").addEventListener("invalid", function() {showErrorMessage("firstname-error", false);});
-  document.getElementById("lastname").addEventListener("invalid", function() {showErrorMessage("lastname-error", false);});
-  document.getElementById("countPages").addEventListener("invalid", function() {showErrorMessage("countPages-error", false);});
-  document.getElementById("cost").addEventListener("invalid", function() {showErrorMessage("cost-error", false);});
-  document.getElementById("createdDate").addEventListener("invalid", function() {showErrorMessage("createdDate-error", false);});
+  document.getElementById("name").addEventListener("invalid", () => showErrorMessage("name-error", false));
+  document.getElementById("firstname").addEventListener("invalid", () => showErrorMessage("firstname-error", false));
+  document.getElementById("lastname").addEventListener("invalid", () => showErrorMessage("lastname-error", false));
+  document.getElementById("countPages").addEventListener("invalid", () => showErrorMessage("countPages-error", false));
+  document.getElementById("cost").addEventListener("invalid", () => showErrorMessage("cost-error", false));
+  document.getElementById("createdDate").addEventListener("invalid", () => showErrorMessage("createdDate-error", false));
 }
 
 function showErrorMessage(idElement, isHidden) {
@@ -368,8 +367,6 @@ function showErrorMessage(idElement, isHidden) {
 
 function hideErrorMessages()
 {
-  var idElementErrors = ["name-error", "firstname-error", "lastname-error", "countPages-error", "cost-error", "createdDate-error"];
-  idElementErrors.forEach(function (elem) {
-    showErrorMessage(elem, true);
-  })
+  let idElementErrors = ["name-error", "firstname-error", "lastname-error", "countPages-error", "cost-error", "createdDate-error"];
+  idElementErrors.forEach(elem => showErrorMessage(elem, true));
 }

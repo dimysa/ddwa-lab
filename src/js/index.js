@@ -24,8 +24,8 @@ function Book(id, name, type, author) {
   };
   
   this.setCreatedDate = function(date) {
-    if(date > Date.now())
-      throw "Date must be less when now";
+    if(Date.parse(date) > Date.now())
+      throw "DateError";
     this.createdDate = date;
   }
 
@@ -35,13 +35,13 @@ function Book(id, name, type, author) {
 
   this.setCountPages = function(count) {
     if(count <= 10)
-      throw "Count pages must be more than 10";
+      throw "CountPagesError";
     this.countPages = count;
   }
 
   this.setCost = function(cost) {
     if(cost <= 0)
-      throw "Cost must be more than 0";
+      throw "CostError";
     this.cost = cost;
   }
 
@@ -206,7 +206,7 @@ function createTable(data) {
   }
 }
 
-function getJsonBookFromField() {
+function getJsonBookFromField() {  
   document.getElementById("form-book");
   var book = {};
   var bookType = document.getElementById("type").value;  
@@ -238,7 +238,7 @@ function getJsonBookFromField() {
     case "Book":
       book = new Book(0, data.name, data.type,
         new Author(data.author.firstname, data.author.lastname));
-      break;  
+      break;
   }
   book.setCreatedDate(data.createdDate);
   book.setCountPages(data.countPages);
@@ -246,21 +246,51 @@ function getJsonBookFromField() {
   return JSON.stringify(book);
 }
 
-function postBook() {  
-  var book = getJsonBookFromField();
-  var htmlHelper = new HtmlHelper();
-  htmlHelper.post("/books", book, function() {
-    alert("Success");
-    document.location = "create.html";
-  }, function() {alert("Error");});  
+function postBook() {
+  try {
+    var book = getJsonBookFromField();
+    var htmlHelper = new HtmlHelper();
+    htmlHelper.post("/books", book, function() {
+      alert("Success");
+      document.location = "create.html";
+    }, function() {alert("Error");});
+  }
+  catch(ex) {
+    switch (ex) {
+      case "DateError":
+        showErrorMessage("createdDate-error", false, "Date must be less than now");
+        break;
+        case "CostError":
+        showErrorMessage("cost-error", false, "Cost must more than 10");
+        break;
+        case "CountPagesError":
+        showErrorMessage("countPages-error", false, "Count pages must more than 0");
+        break; 
+    }
+  }
 }
 
-function putBook() {  
-  var book = getJsonBookFromField();
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
-  htmlHelper.put("/books", id, book, function() {alert("Success");}, function() {alert("Error");});
+function putBook() {
+  try {
+    var book = getJsonBookFromField();
+    var htmlHelper = new HtmlHelper();
+    var url = new URL(document.location.href);
+    var id = url.searchParams.get("id");
+    htmlHelper.put("/books", id, book, function() {alert("Success");}, function() {alert("Error");});
+  }
+  catch(ex) {
+    switch (ex) {
+      case "DateError":
+        showErrorMessage("createdDate-error", false, "Date must be less than now");
+        break;
+        case "CostError":
+        showErrorMessage("cost-error", false, "Cost must more than 10");
+        break;
+        case "CountPagesError":
+        showErrorMessage("countPages-error", false, "Count pages must more than 0");
+        break; 
+    }
+  }
 }
 
 function deleteBook(id) {
@@ -357,13 +387,15 @@ function setValidation() {
   document.getElementById("name").addEventListener("invalid", function() {showErrorMessage("name-error", false);});
   document.getElementById("firstname").addEventListener("invalid", function() {showErrorMessage("firstname-error", false);});
   document.getElementById("lastname").addEventListener("invalid", function() {showErrorMessage("lastname-error", false);});
-  document.getElementById("countPages").addEventListener("invalid", function() {showErrorMessage("countPages-error", false);});
-  document.getElementById("cost").addEventListener("invalid", function() {showErrorMessage("cost-error", false);});
-  document.getElementById("createdDate").addEventListener("invalid", function() {showErrorMessage("createdDate-error", false);});
+  document.getElementById("countPages").addEventListener("invalid", function() {showErrorMessage("countPages-error", false, "Please, enter date");});
+  document.getElementById("cost").addEventListener("invalid", function() {showErrorMessage("cost-error", false, "Please, enter field(only numbers, >= 10)");});
+  document.getElementById("createdDate").addEventListener("invalid", function() {showErrorMessage("createdDate-error", false, "Please, enter field(only numbers)");});
 }
 
-function showErrorMessage(idElement, isHidden) {
+function showErrorMessage(idElement, isHidden, message) {
   document.getElementById(idElement).hidden = isHidden;
+  if(message != undefined)
+    document.getElementById(idElement).innerText = message;
 }
 
 function hideErrorMessages()

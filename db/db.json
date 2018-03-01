@@ -27,6 +27,18 @@
       "createdDate": "2018-01-01",
       "countPages": "598",
       "cost": "25"
+    },
+    {
+      "id": 3,
+      "name": "qweqweqasd",
+      "type": "Book",
+      "author": {
+        "firstname": "qweqweasd",
+        "lastname": "qweqweasd"
+      },
+      "createdDate": "2000-11-11",
+      "countPages": "11",
+      "cost": "11"
     }
   ]
 }

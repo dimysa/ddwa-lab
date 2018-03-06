@@ -81,24 +81,24 @@ class HtmlHelper {
     this.baseUrl = 'http://localhost:3000';
   }  
 
-  get(url, query) {    
+  async get(url, query) {    
     let fullUrl = this.baseUrl + url + (query ? query : "");    
-    return this.request(fullUrl, 'GET', null);
+    return await this.request(fullUrl, 'GET', null);
   }
 
-  post(url, body) {    
+  async post(url, body) {    
     let fullUrl = this.baseUrl + url;
-    return this.request(fullUrl, 'POST', body);
+    return await this.request(fullUrl, 'POST', body);
   }
 
-  put(url, id, body) {    
+  async put(url, id, body) {    
     let fullUrl = this.baseUrl + url + '/' + id;
-    return this.request(fullUrl, 'PUT', body);    
+    return await this.request(fullUrl, 'PUT', body);    
   }
 
-  delete(url, id) {    
+  async delete(url, id) {    
     let fullUrl = this.baseUrl + url + "/" + id;
-    return this.request(fullUrl, 'DELETE', null);
+    return await this.request(fullUrl, 'DELETE', null);
   }
 
   request(url, method, body) {
@@ -248,49 +248,65 @@ function getJsonBookFromField() {
   }
 }
 
-function postBook() {  
+async function postBook() {  
   const book = getJsonBookFromField();
   if(book !== undefined) {
     const htmlHelper = new HtmlHelper();
-    htmlHelper.post('/books', book)
-      .then(() => {
-        alert("Success");
-        document.location = 'create.html';
-      })
-      .catch(ex => { alert("Error"); console.log(ex) });
+    try {
+      await htmlHelper.post('/books', book);
+      alert("Success");
+      document.location = 'create.html';
+    }
+    catch(ex) {
+      alert("Error");
+      console.log(ex);
+    }
   }
 }
 
-function putBook() {  
+async function putBook() {  
   const book = getJsonBookFromField();
   if(book !== undefined) {
     const htmlHelper = new HtmlHelper();
     let url = new URL(document.location.href);
     let id = url.searchParams.get("id");
-    htmlHelper.put("/books", id, book)
-      .then(() => alert("Success"))
-      .catch(ex => { alert("Error"); console.log(ex) });
+    try {
+      await htmlHelper.put("/books", id, book);
+      alert("Success");
+    }
+    catch(ex) {
+      alert("Error");
+      console.log(ex);
+    }
   }
 }
 
-function deleteBook(id) {
+async function deleteBook(id) {
   const htmlHelper = new HtmlHelper();  
-  htmlHelper.delete("/books", id)
-    .then(() => {
-      document.getElementById("Book"+id).remove();      
-      const bookId = books.indexOf(findBookById(id));
-      books.splice(bookId, 1);            
-      alert("Success");    
-    })
-    .catch(ex => { alert("Error"); console.log(ex) });
+  try {
+    await htmlHelper.delete("/books", id);
+    document.getElementById("Book"+id).remove();      
+    const bookId = books.indexOf(findBookById(id));
+    books.splice(bookId, 1);            
+    alert("Success");    
+  }
+  catch(ex) {
+    alert("Error");
+    console.log(ex);
+  }
 }
 
-function loadInfoCurrentBook() {
+async function loadInfoCurrentBook() {
   const htmlHelper = new HtmlHelper();  
   const id = getQueryParam('id');
-  htmlHelper.get(`/books/${id}`)
-    .then(data => fillInfoFields(data))
-    .catch(ex => { alert("Error"); console.log(ex) });
+  try {
+    let data = await htmlHelper.get(`/books/${id}`);
+    fillInfoFields(data);
+  }    
+  catch (ex) {
+    alert("Error"); 
+    console.log(ex.message);
+  }
 }
 
 function fillInfoFields(data) {
@@ -312,12 +328,17 @@ function fillInfoFields(data) {
   document.getElementById("cost").innerText = book.Cost;
 }
 
-function loadCurrentBook() {
+async function loadCurrentBook() {
   const htmlHelper = new HtmlHelper();  
   const id = getQueryParam('id');
-  htmlHelper.get(`/books/${id}`)
-    .then(data => fillFormFields(data))
-    .catch(() => alert("Error"));
+  try {
+    let data = htmlHelper.get(`/books/${id}`);
+    fillFormFields(data);
+  }
+  catch(ex) {
+    alert("Error");
+    console.log(ex.message);
+  }
 }
 
 function fillFormFields(data) {

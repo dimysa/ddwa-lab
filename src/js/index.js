@@ -391,9 +391,9 @@ function setValidation() {
   document.getElementById("name").addEventListener("invalid", function() {showErrorMessage("name-error", false);});
   document.getElementById("firstname").addEventListener("invalid", function() {showErrorMessage("firstname-error", false);});
   document.getElementById("lastname").addEventListener("invalid", function() {showErrorMessage("lastname-error", false);});
-  document.getElementById("countPages").addEventListener("invalid", function() {showErrorMessage("countPages-error", false, "Please, enter date");});
-  document.getElementById("cost").addEventListener("invalid", function() {showErrorMessage("cost-error", false, "Please, enter field(only numbers, >= 10)");});
-  document.getElementById("createdDate").addEventListener("invalid", function() {showErrorMessage("createdDate-error", false, "Please, enter field(only numbers)");});
+  document.getElementById("countPages").addEventListener("invalid", function() {showErrorMessage("countPages-error", false, "Please, enter field(only numbers, >= 10)");});
+  document.getElementById("cost").addEventListener("invalid", function() {showErrorMessage("cost-error", false, "Please, enter field(only numbers)");});
+  document.getElementById("createdDate").addEventListener("invalid", function() {showErrorMessage("createdDate-error", false, "Please, enter date");});
 }
 
 function showErrorMessage(idElement, isHidden, message) {

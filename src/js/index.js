@@ -142,6 +142,13 @@ HtmlHelper.prototype.delete = function(url, id, successClb, faliedClb) {
 
 // ParseObjects
 
+function getQueryParam(param) {
+  var result =  window.location.search.match(
+      new RegExp("(\\?|&)" + param + "(\\[\\])?=([^&]*)")
+  );
+  return result ? result[3] : false;
+}
+
 function parseJsonToBook(element) {
   var book = {};
   var author = new Author(element.author.firstname, element.author.lastname);
@@ -273,9 +280,8 @@ function postBook() {
 function putBook() {
   try {
     var book = getJsonBookFromField();
-    var htmlHelper = new HtmlHelper();
-    var url = new URL(document.location.href);
-    var id = url.searchParams.get("id");
+    var htmlHelper = new HtmlHelper();    
+    var id = getQueryParam('id');
     htmlHelper.put("/books", id, book, function() {alert("Success");}, function() {alert("Error");});
   }
   catch(ex) {
@@ -302,9 +308,8 @@ function deleteBook(id) {
 }
 
 function loadInfoCurrentBook() {
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
+  var htmlHelper = new HtmlHelper();  
+  var id = getQueryParam('id');
   htmlHelper.get("/books/"+id, "", fillInfoFields, function() {alert("Error");});
 }
 
@@ -328,9 +333,8 @@ function fillInfoFields(data) {
 }
 
 function loadCurrentBook() {
-  var htmlHelper = new HtmlHelper();
-  var url = new URL(document.location.href);
-  var id = url.searchParams.get("id");
+  var htmlHelper = new HtmlHelper();  
+  var id = getQueryParam('id');
   htmlHelper.get("/books/"+id, "", fillFormFields, function() {alert("Error");});
 }
 

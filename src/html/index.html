@@ -5,7 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
 <body onload="loadIndexPage()">
-  <a href="create.html" id="createButton">New book</a>
+  <a href="create.html" id="createButton" onclick="stopWorker()">New book</a>
   <div style="float: right;">
     <input type="text" placeholder="Search" id="searchBooks"/>
     <button type="button" onclick="searchBooks()">Search</button>
@@ -27,6 +27,8 @@
       
     </tbody>
   </table>
+  <br />
+  <div id='books-count'></div>
   <script src="../js/index.js"></script>    
 </body>
 </html>

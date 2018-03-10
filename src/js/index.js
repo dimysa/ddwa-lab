@@ -123,6 +123,7 @@ class HtmlHelper {
 // ParseObjects
 
 this.books = [];
+let worker;
 
 function parseJsonToBook(element) {
   let book = {};
@@ -159,6 +160,7 @@ function createTable(data) {
     let tr = document.createElement("tr");
     tr.setAttribute("data-id", book.id);
     tr.onclick = function (ev) {
+      stopWorker();
       document.location = `info.html?id=${this.getAttribute("data-id")}`;
       ev.preventDefault();
       ev.stopPropagation();
@@ -176,6 +178,7 @@ function createTable(data) {
     let editLink = document.createElement("a");
     editLink.href = '#';
     editLink.onclick = function(ev) {
+      stopWorker();
       document.location = `edit.html?id=${book.id}`;
       ev.preventDefault();
       ev.stopPropagation();
@@ -332,7 +335,7 @@ async function loadCurrentBook() {
   const htmlHelper = new HtmlHelper();  
   const id = getQueryParam('id');
   try {
-    let data = htmlHelper.get(`/books/${id}`);
+    let data = await htmlHelper.get(`/books/${id}`);
     fillFormFields(data);
   }
   catch(ex) {
@@ -383,11 +386,18 @@ function goToIndex() {
   document.location = "index.html";
 }
 
-function loadIndexPage() {
-  const htmlHelper = new HtmlHelper();
-  htmlHelper.get('/books')
-    .then(data => createTable(data))
-    .catch(() => alert("Error"));
+async function loadIndexPage() {
+  try {
+    initWorker();
+
+    const htmlHelper = new HtmlHelper();
+    let data = await htmlHelper.get('/books')
+    createTable(data)
+  }
+  catch(ex) {
+    alert('Error');
+    console.log(ex.message);
+  }
 }
 
 //Search
@@ -422,6 +432,37 @@ function searchBooks() {
     }
     item = gen.next();
   }
+}
+
+//Worker
+
+function initWorker() {  
+  worker = new Worker("../js/worker.js");
+  worker.addEventListener('message', function (e) {
+    if(!isNaN(Number(e.data))) {
+      const countBooks = e.data;
+      updateLabel(countBooks);
+    }
+  });
+  let updateTime = localStorage.getItem('updateTime');
+  if(updateTime) {    
+    worker.postMessage(updateTime);
+    localStorage.removeItem('updateTime');
+  } else {    
+    worker.postMessage('startWorker');
+  }
+}
+
+function updateLabel(count) {
+  const label = document.getElementById('books-count');
+  if(count) {
+    label.innerHTML = `Counts of books: ${count}`;
+  }
+}
+
+function stopWorker() {
+  localStorage.setItem('updateTime', Date.now());
+  worker.terminate();
 }
 
 //Validation

@@ -436,20 +436,29 @@ function searchBooks() {
 
 //Worker
 
+let updateTimeWorker;
+const UPDATE_TIME = 60000;
+
 function initWorker() {  
   worker = new Worker("../js/worker.js");
   worker.addEventListener('message', function (e) {
     if(!isNaN(Number(e.data))) {
       const countBooks = e.data;
       updateLabel(countBooks);
+    } else {
+      if(e.data.includes('updateTime')) {
+        updateTimeWorker = Number(e.data.split(',')[1]);
+        if(updateTimeWorker == 0)
+          localStorage.setItem('updateTime', Date.now());
+      }
     }
   });
-  let updateTime = localStorage.getItem('updateTime');
-  if(updateTime) {    
-    worker.postMessage(updateTime);
-    localStorage.removeItem('updateTime');
+  let updateTime = localStorage.getItem('updateTime');  
+  if(updateTime) {
+    worker.postMessage(updateTime);    
   } else {    
     worker.postMessage('startWorker');
+    localStorage.setItem('updateTime', Date.now());
   }
 }
 
@@ -460,8 +469,12 @@ function updateLabel(count) {
   }
 }
 
-function stopWorker() {
-  localStorage.setItem('updateTime', Date.now());
+function stopWorker() {  
+  let updateTime = localStorage.getItem('updateTime');
+  if(updateTimeWorker) {    
+    updateTime = Number(updateTime - UPDATE_TIME + updateTimeWorker);  
+    localStorage.setItem('updateTime', updateTime);
+  }
   worker.terminate();
 }
 

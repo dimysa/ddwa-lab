@@ -27,6 +27,18 @@
       "createdDate": "2018-01-01",
       "countPages": "598",
       "cost": "25"
+    },
+    {
+      "id": 3,
+      "name": "Asdasdasd",
+      "type": "Book",
+      "author": {
+        "firstname": "Asdasdasd",
+        "lastname": "Asdasdas"
+      },
+      "createdDate": "1111-11-11",
+      "countPages": "100",
+      "cost": "9"
     }
   ]
 }

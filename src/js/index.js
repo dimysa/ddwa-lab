@@ -173,9 +173,8 @@ async function postBook() {
 async function putBook() {  
   const book = getJsonBookFromField();
   if(book !== undefined) {
-    const htmlHelper = new HtmlHelper();
-    let url = new URL(document.location.href);
-    let id = url.searchParams.get("id");
+    const htmlHelper = new HtmlHelper();    
+    let id = getQueryParam('id');
     try {
       await htmlHelper.put("/books", id, book);
       alert("Success");
@@ -235,7 +234,7 @@ function fillInfoFields(data) {
 }
 
 async function loadCurrentBook() {
-  setValidation();
+  setValidation('form-put-book');
   const htmlHelper = new HtmlHelper();  
   const id = getQueryParam('id');
   try {
@@ -411,7 +410,17 @@ function stopWorker() {
 
 //Validation
 
-function setValidation() {  
+function setValidation(formId = 'form-post-book') {  
+  document.getElementById(formId).onsubmit = function(ev) {
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    if(formId == 'form-post-book')
+      postBook();
+    else {
+      console.log("PUT");
+      putBook();
+    }
+  }
   document.getElementById("name").addEventListener("invalid", () => showErrorMessage("name-error", false));
   document.getElementById("firstname")
     .addEventListener("invalid", () => showErrorMessage("firstname-error", false));

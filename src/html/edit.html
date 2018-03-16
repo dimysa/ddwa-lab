@@ -6,7 +6,7 @@
 </head>
 <body>
   <body onload="index.loadCurrentBook()">
-    <form action="javascript:index.putBook()">
+    <form id="form-put-book">
       <div id="book-fields">
         <label for="type">Type</label>
         <select id="type" onchange="index.changePages(this.options[this.selectedIndex].value)">

@@ -1,9 +1,12 @@
 const UPDATE_TIME = 60000;
-
-console.log('WORKER');
+//console.log('WORKER');
 
 function getCountBooks(updateTime = UPDATE_TIME) {
   console.log(`Worker getCountBooks, time: ${updateTime}`);
+  if(updateTime != UPDATE_TIME)
+    postMessage(`updateTime,${updateTime}`);
+  else
+    postMessage('updateTime, 0');
   request()
     .then(books => {
       books = books || [];
@@ -17,7 +20,10 @@ onmessage = function(e) {
     getCountBooks();
   } else {
     let updateTime = Number(e.data);        
-    getCountBooks(updateTime + UPDATE_TIME - Date.now());    
+    let currentUpdateTime = updateTime + UPDATE_TIME - Date.now();
+    if(currentUpdateTime < 0)
+      currentUpdateTime = UPDATE_TIME;
+    getCountBooks(currentUpdateTime);    
   }
 }
 

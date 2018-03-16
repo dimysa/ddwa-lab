@@ -1,128 +1,23 @@
 'use strict'
-// Objects
 
-class ValidationError extends Error {
-  constructor(fieldName, message) {
-    super(message);
-    this.fieldName = fieldName;    
-  }
-}
+import logo from '../img/books-logo.png';
+import banner from '../img/books-banner.jpg';
 
-class Author {
-  constructor(firstname, lastname) {
-    this.firstname = firstname;
-    this.lastname = lastname;
-  }
+import '../css/bootstrap.css';
 
-  toString() {
-    return `${this.firstname} ${this.lastname}`;
-  }
-}
+import ValidationError from './errors/validation-error';
+import Author from './models/author';
+import Book from './models/book';
+import Audiobook from './models/audiobook';
+import Textbook from './models/textbook';
 
-class Book {
-  constructor(id, name, type, author) {
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.author = author;
-  }
+import HtmlHelper from './utils/html-helper';
 
-  get CreatedDate() {
-    return this.createdDate;
-  }
-
-  set CreatedDate(date) {  
-    if(Date.parse(date) > Date.now())
-      throw new ValidationError("createdDate", "Date must be less when now");
-    this.createdDate = date;
-  }
-
-  get CountPages() {
-    return this.countPages;
-  }
-
-  set CountPages(count) {    
-    if(count <= 10)
-      throw new ValidationError("countPages", "Count pages must be more than 10");
-    this.countPages = count;
-  }
-
-  get Cost() {
-    return this.cost;
-  }
-
-  set Cost(cost) {    
-    if(cost <= 0)
-      throw new ValidationError("cost", "Cost must be more than 0");
-    this.cost = cost;
-  }
-}
-
-class Audiobook extends Book {
-  constructor(id, name, type, author, typeDisk = "CD", countDisk = 1) {
-    super(id, name, type, author);
-    this.typeDisk = typeDisk;
-    this.countDisk = countDisk;
-  }
-}
-
-class Textbook extends Book {
-  constructor(id, name, type, author, typeScience = "", typeInstitution = "") {
-    super(id, name, type, author);
-    this.typeScience = typeScience;
-    this.typeInstitution = typeInstitution;
-  }
-}
-
-// HtmlHelper
-
-class HtmlHelper {
-  constructor() {
-    this.baseUrl = 'http://localhost:3000';
-  }  
-
-  async get(url, query) {    
-    let fullUrl = this.baseUrl + url + (query ? query : "");    
-    return await this.request(fullUrl, 'GET', null);
-  }
-
-  async post(url, body) {    
-    let fullUrl = this.baseUrl + url;
-    return await this.request(fullUrl, 'POST', body);
-  }
-
-  async put(url, id, body) {    
-    let fullUrl = this.baseUrl + url + '/' + id;
-    return await this.request(fullUrl, 'PUT', body);    
-  }
-
-  async delete(url, id) {    
-    let fullUrl = this.baseUrl + url + "/" + id;
-    return await this.request(fullUrl, 'DELETE', null);
-  }
-
-  request(url, method, body) {
-    return new Promise((resolve, reject) => {
-      let xhr = new XMLHttpRequest();
-      xhr.open(method, url, true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onreadystatechange = () => {
-        if(xhr.readyState != 4) return;
-
-        if(xhr.status == 200 || xhr.status == 201) {
-          return resolve(JSON.parse(xhr.responseText));          
-        } else {
-          return reject(new Error(xhr.responseText));
-        }
-      }
-      xhr.send(body);
-    });
-  }
-}
+const Worker = require("worker-loader?name=hash.worker.js!./worker");
 
 // ParseObjects
 
-this.books = [];
+let books = [];
 let worker;
 
 function parseJsonToBook(element) {
@@ -152,11 +47,19 @@ function getQueryParam(param) {
 
 // WorkingWithPage
 
-function createTable(data) {
-  books = [];
+function createTable(data, isCreate) {
+  if(isCreate)
+    books = [];
+  else
+    document.getElementById('book-table-body').innerHTML = '';
   for (let item of data) {
-    let book = parseJsonToBook(item);
-    books.push(book);
+    let book;
+    if(isCreate) {
+      book = parseJsonToBook(item);
+      books.push(book);
+    } else {
+      book = item;
+    }
     let tr = document.createElement("tr");
     tr.setAttribute("data-id", book.id);
     tr.onclick = function (ev) {
@@ -332,6 +235,7 @@ function fillInfoFields(data) {
 }
 
 async function loadCurrentBook() {
+  setValidation();
   const htmlHelper = new HtmlHelper();  
   const id = getQueryParam('id');
   try {
@@ -388,21 +292,27 @@ function goToIndex() {
 
 async function loadIndexPage() {
   try {
+    setIcons();
     initWorker();
 
     const htmlHelper = new HtmlHelper();
-    let data = await htmlHelper.get('/books')
-    createTable(data)
+    let data = await htmlHelper.get('/books');    
+    createTable(data, true);
   }
   catch(ex) {
     alert('Error');
-    console.log(ex.message);
+    console.log(`Error: ${ex.message}`);
   }
+}
+
+function setIcons() {
+  document.getElementById("pic-logo").setAttribute("src", logo);
+  document.getElementById("pic-banner").setAttribute("src", banner);
 }
 
 //Search
 
-this.booksGenerator = function* () {
+let booksGenerator = function* () {
   for(let book of books) {
     yield book;
   }
@@ -434,22 +344,52 @@ function searchBooks() {
   }
 }
 
+//Sort
+
+function sortBooks(fieldName, isNumber) {  
+  books = books.sort((a, b) => {
+    let first, second;
+    if(isNumber){
+      first = Number(a[fieldName]);
+      second = Number(b[fieldName]);
+    } else {
+      first = a[fieldName];
+      second = b[fieldName];
+    }
+    if(first > second)
+      return 1;
+    if(first < second)
+      return -1;
+    return 0;
+  });
+  createTable(books, false);
+}
+
 //Worker
 
+let updateTimeWorker;
+const UPDATE_TIME = 60000;
+
 function initWorker() {  
-  worker = new Worker("../js/worker.js");
+  worker = new Worker;
   worker.addEventListener('message', function (e) {
     if(!isNaN(Number(e.data))) {
       const countBooks = e.data;
       updateLabel(countBooks);
+    } else {
+      if(e.data.includes('updateTime')) {
+        updateTimeWorker = Number(e.data.split(',')[1]);
+        if(updateTimeWorker == 0)
+          localStorage.setItem('updateTime', Date.now());
+      }
     }
   });
-  let updateTime = localStorage.getItem('updateTime');
-  if(updateTime) {    
-    worker.postMessage(updateTime);
-    localStorage.removeItem('updateTime');
+  let updateTime = localStorage.getItem('updateTime');  
+  if(updateTime) {
+    worker.postMessage(updateTime);    
   } else {    
     worker.postMessage('startWorker');
+    localStorage.setItem('updateTime', Date.now());
   }
 }
 
@@ -460,14 +400,18 @@ function updateLabel(count) {
   }
 }
 
-function stopWorker() {
-  localStorage.setItem('updateTime', Date.now());
+function stopWorker() {  
+  let updateTime = localStorage.getItem('updateTime');
+  if(updateTimeWorker) {    
+    updateTime = Number(updateTime - UPDATE_TIME + updateTimeWorker);  
+    localStorage.setItem('updateTime', updateTime);
+  }
   worker.terminate();
 }
 
 //Validation
 
-function setValidation() {
+function setValidation() {  
   document.getElementById("name").addEventListener("invalid", () => showErrorMessage("name-error", false));
   document.getElementById("firstname")
     .addEventListener("invalid", () => showErrorMessage("firstname-error", false));
@@ -493,3 +437,17 @@ function hideErrorMessages()
     "firstname-error", "lastname-error", "countPages-error", "cost-error", "createdDate-error"];
   idElementErrors.forEach(elem => showErrorMessage(elem, true));
 }
+
+export {loadIndexPage,
+  stopWorker,
+  searchBooks, 
+  loadInfoCurrentBook,
+  loadCurrentBook, 
+  putBook, 
+  postBook, 
+  hideErrorMessages, 
+  changePages, 
+  goToIndex, 
+  setValidation,
+  sortBooks
+};

@@ -2,7 +2,7 @@
   "books": [
     {
       "id": 1,
-      "name": "FirstBook",
+      "name": "FirstBook1",
       "type": "Audiobook",
       "author": {
         "firstname": "Firstname",
@@ -27,6 +27,20 @@
       "createdDate": "2018-01-01",
       "countPages": "598",
       "cost": "25"
+    },
+    {
+      "id": 3,
+      "name": "Asdasdasd",
+      "type": "Audiobook",
+      "author": {
+        "firstname": "Asdasdasd",
+        "lastname": "Asdasdas"
+      },
+      "typeDisk": "CD",
+      "countDisk": "2",
+      "createdDate": "1111-11-11",
+      "countPages": "100",
+      "cost": "5"
     }
   ]
 }

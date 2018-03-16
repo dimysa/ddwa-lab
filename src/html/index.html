@@ -4,31 +4,37 @@
   <title>Books</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 </head>
-<body onload="loadIndexPage()">
-  <a href="create.html" id="createButton" onclick="stopWorker()">New book</a>
-  <div style="float: right;">
-    <input type="text" placeholder="Search" id="searchBooks"/>
-    <button type="button" onclick="searchBooks()">Search</button>
-  </div>
-  <table id="book-table">
-    <caption>Books list</caption>
-    <thead>
-    <tr>
-      <th>№</th>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Author</th>
-      <th>Created Date</th>
-      <th>Count pages</th>
-      <th>Cost</th>
-    </tr>
-    </thead>
-    <tbody id="book-table-body">
-      
-    </tbody>
-  </table>
-  <br />
-  <div id='books-count'></div>
-  <script src="../js/index.js"></script>    
+<body onload="index.loadIndexPage()">
+  <div class="container">
+    <img id="pic-logo" />
+    <a href="create.html" id="createButton" onclick="index.stopWorker()">New book</a>
+    <div style="float: right;">
+      <input type="text" placeholder="Search" id="searchBooks"/>
+      <button type="button" onclick="index.searchBooks()">Search</button>
+    </div>
+    <table class="table" id="book-table">
+      <caption>Books list</caption>
+      <thead>
+      <tr>
+        <th onclick="index.sortBooks('id')">№</th>
+        <th onclick="index.sortBooks('name')">Name</th>
+        <th onclick="index.sortBooks('type')">Type</th>
+        <th onclick="index.sortBooks('author')">Author</th>
+        <th onclick="index.sortBooks('createdDate')">Created Date</th>
+        <th onclick="index.sortBooks('countPages', true)">Count pages</th>
+        <th onclick="index.sortBooks('cost', true)">Cost</th>
+      </tr>
+      </thead>
+      <tbody id="book-table-body">
+        
+      </tbody>
+    </table>
+    <div id='books-count'></div>
+    <div class="center-block">
+      <img id="pic-banner" class="img-fluid"/>
+    </div>
+    <br />
+</div>
+  <script src="../../dist/index.js"></script>    
 </body>
 </html>

@@ -2,7 +2,7 @@
   "books": [
     {
       "id": 1,
-      "name": "FirstBook1123",
+      "name": "ZirstBook1123",
       "type": "Audiobook",
       "author": {
         "firstname": "Firstname",
@@ -30,17 +30,27 @@
     },
     {
       "id": 3,
-      "name": "Asdasdasd",
-      "type": "Audiobook",
+      "name": "Asdweasd",
+      "type": "Book",
       "author": {
-        "firstname": "Asdasdasd",
-        "lastname": "Asdasdas"
+        "firstname": "qweadsqwe",
+        "lastname": "qweadsqwe"
       },
-      "typeDisk": "CD",
-      "countDisk": "2",
       "createdDate": "1111-11-11",
-      "countPages": "100",
-      "cost": "5"
+      "countPages": "11",
+      "cost": "1"
+    },
+    {
+      "id": 4,
+      "name": "Masdasda",
+      "type": "Book",
+      "author": {
+        "firstname": "papsdpasd",
+        "lastname": "aspdpasdp"
+      },
+      "createdDate": "1111-11-11",
+      "countPages": "11",
+      "cost": "1"
     }
   ]
 }

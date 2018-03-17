@@ -149,6 +149,7 @@ function getJsonBookFromField() {
     return JSON.stringify(book);
   } catch (ex) {
       if (ex instanceof ValidationError) {
+        alert(ex.message);
         showErrorMessage(`${ex.fieldName}-error`, false, ex.message);
     }
   }
@@ -190,7 +191,11 @@ async function deleteBook(id) {
   const htmlHelper = new HtmlHelper();  
   try {
     await htmlHelper.delete("/books", id);
-    document.getElementById("Book"+id).remove();      
+    let row = document.getElementById("Book"+id);
+    if(typeof row.remove === 'function')
+      row.remove();
+    else
+      row.parentNode.removeChild(row);      
     const bookId = books.indexOf(findBookById(id));
     books.splice(bookId, 1);            
     alert("Success");    

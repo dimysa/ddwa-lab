@@ -27,6 +27,11 @@ module.exports = {
                 }
             }
         }),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            moment: 'moment'
+        }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
             hash: true,

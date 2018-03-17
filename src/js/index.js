@@ -4,6 +4,7 @@ import logo from '../img/books-logo.png';
 import banner from '../img/books-banner.jpg';
 
 import '../css/bootstrap.css';
+import 'tempusdominus-bootstrap-4/build/css/tempusdominus-bootstrap-4.min.css'
 
 import ValidationError from './errors/validation-error';
 import Author from './models/author';
@@ -14,6 +15,14 @@ import Textbook from './models/textbook';
 import HtmlHelper from './utils/html-helper';
 
 const Worker = require("worker-loader?name=hash.worker.js!./worker");
+
+const $ = require('jquery');
+const dt = require('datatables.net-bs4');
+
+require('jquery-validation');
+
+var moment = require('moment');
+require('tempusdominus-bootstrap-4');
 
 // ParseObjects
 
@@ -51,7 +60,7 @@ function createTable(data, isCreate) {
   if(isCreate)
     books = [];
   else
-    document.getElementById('book-table-body').innerHTML = '';
+    $('#book-table-body').innerHTML = '';
   for (let item of data) {
     let book;
     if(isCreate) {
@@ -60,83 +69,103 @@ function createTable(data, isCreate) {
     } else {
       book = item;
     }
-    let tr = document.createElement("tr");
-    tr.setAttribute("data-id", book.id);
-    tr.onclick = function (ev) {
-      stopWorker();
-      document.location = `info.html?id=${this.getAttribute("data-id")}`;
-      ev.preventDefault();
-      ev.stopPropagation();
-    };
-    tr.id = "Book" + book.id;
-    let values = [book.id, book.name, book.type, book.author.toString(), book.CreatedDate,
-      book.CountPages, book.Cost];
-    for (let i = 0; i < values.length; i++) {
-      let td = document.createElement("td");
-      let text = document.createTextNode(values[i]);
-      td.appendChild(text);
-      tr.appendChild(td);
-    }
-    let td = document.createElement("td");
-    let editLink = document.createElement("a");
-    editLink.href = '#';
-    editLink.onclick = function(ev) {
-      stopWorker();
-      document.location = `edit.html?id=${book.id}`;
-      ev.preventDefault();
-      ev.stopPropagation();
-    }        
-    let text = document.createTextNode("Edit ");
-    editLink.appendChild(text);      
-    td.appendChild(editLink); 
-    let deleteLink = document.createElement("a");
-    deleteLink.setAttribute("data-id", book.id);
-    let textDelete = document.createTextNode(" Delete");      
-    deleteLink.onclick = function(ev) {      
-      let result = confirm("Are you sure?")
-      if(result)
-        deleteBook(this.getAttribute("data-id"));
-      ev.preventDefault();
-      ev.stopPropagation();
-    }
-    deleteLink.href = '#';
-    deleteLink.appendChild(textDelete);
-    td.appendChild(deleteLink);
-    tr.appendChild(td);
-
-    document.getElementById("book-table-body").appendChild(tr);  
   }
+  let table = $("#book-table").DataTable({    
+    data: books,
+    columns : [
+      {data: 'id'},
+      {data: 'name'},
+      {data: 'type'},
+      {data: 'author'},
+      {data: 'CreatedDate'},
+      {data: 'CountPages'},
+      {data: 'Cost'},
+      null,
+      null
+    ],
+    columnDefs: [{
+      targets: -1,
+      data: null,
+      defaultContent: "<button class='btnDelete btn btn-default'>Delete</button>"
+    },
+    {
+      targets: -2,
+      data: null,
+      defaultContent: "<button class='btnEdit btn btn-default'>Edit</button>"
+    }
+  ],
+    ordering: true,
+    select: true
+  });
+
+  $('.btnDelete').on('click', 'button', function(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    let data = table.row( $(this).parents('tr') ).data();
+    let result = confirm("Are you sure?")
+    if(result)
+      deleteBook(data.id);
+  });
+  
+  $('.btnEdit').each(function() {
+    $(this).click((ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      let data = table.row( $(this).parents('tr') ).data();
+      stopWorker();
+      document.location = `edit.html?id=${data.id}`;
+    })
+  });
+
+  $('.btnDelete').each(function() {
+    $(this).click((ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      let result = confirm("Are you sure?")
+      if(result) {
+        let row = table.row( $(this).parents('tr') );
+        let data = row.data();
+        deleteBook(data.id);
+        row.remove().draw();
+      }
+    })
+  });
+
+  $('#book-table tbody').on('click', 'tr', function () {
+    let data = table.row( this ).data();
+    stopWorker();
+    document.location = `info.html?id=${data.id}`;
+  });
 }
 
 function getJsonBookFromField() {
-  try {
-    document.getElementById("form-book");
+  try {    
     let book = {};
-    let bookType = document.getElementById("type").value;  
+    let bookType = $("#type").val();  
     let data = {
-      name: document.getElementById("name").value,
+      name: $("#name").val(),
       type: bookType,
       author : {
-        firstname: document.getElementById("firstname").value,
-        lastname: document.getElementById("lastname").value
+        firstname: $("#firstname").val(),
+        lastname: $("#lastname").val()
       },
-      createdDate: document.getElementById("createdDate").value,
-      countPages: document.getElementById("countPages").value,
-      cost: document.getElementById("cost").value
+      createdDate: $("#createdDate").val(),
+      countPages: $("#countPages").val(),
+      cost: $("#cost").val()
     };
     switch (bookType) {
       case "Audiobook":
         book = new Audiobook(0, data.name,
           data.type,
           new Author(data.author.firstname, data.author.lastname),
-          document.getElementById("typeDisk").value,
-          document.getElementById("countDisk").value);
+          $("#typeDisk").val(),
+          $("#countDisk").val());
         break;
       case "Textbook":
         book = new Textbook(0, data.name, data.type,
           new Author(data.author.firstname, data.author.lastname),
-          document.getElementById("typeScience").value,
-          document.getElementById("typeInstitution").value);
+          $("#typeScience").val(),
+          $("#typeInstitution").val());
         break;
       case "Book":
         book = new Book(0, data.name, data.type,
@@ -190,7 +219,7 @@ async function deleteBook(id) {
   const htmlHelper = new HtmlHelper();  
   try {
     await htmlHelper.delete("/books", id);
-    document.getElementById("Book"+id).remove();      
+    //$("#Book"+id).remove();      
     const bookId = books.indexOf(findBookById(id));
     books.splice(bookId, 1);            
     alert("Success");    
@@ -217,20 +246,20 @@ async function loadInfoCurrentBook() {
 function fillInfoFields(data) {
   const book = parseJsonToBook(data);
   if(book instanceof Audiobook) {
-    document.getElementById("typeDisk").innerText = book.typeDisk;
-    document.getElementById("countDisk").innerText = book.countDisk;
+    $("#typeDisk").text(book.typeDisk);
+    $("#countDisk").text(book.countDisk);
   } else if (book instanceof Textbook) {
-    document.getElementById("typeScience").innerText = book.typeScience;
-    document.getElementById("typeInstitution").innerText = book.typeInstitution;
+    $("#typeScience").text(book.typeScience);
+    $("#typeInstitution").text(book.typeInstitution);
   }
-  document.getElementById("type").innerText = book.type;
+  $("#type").text(book.type);
   changePages(book.type);
-  document.getElementById("name").innerText = book.name;
-  document.getElementById("firstname").innerText = book.author.firstname;
-  document.getElementById("lastname").innerText = book.author.lastname;
-  document.getElementById("createdDate").innerText = book.CreatedDate;
-  document.getElementById("countPages").innerText = book.CountPages;
-  document.getElementById("cost").innerText = book.Cost;
+  $("#name").text(book.name);
+  $("#firstname").text(book.author.firstname);
+  $("#lastname").text(book.author.lastname);
+  $("#createdDate").text(book.CreatedDate);
+  $("#countPages").text(book.CountPages);
+  $("#cost").text(book.Cost);
 }
 
 async function loadCurrentBook() {
@@ -250,35 +279,35 @@ async function loadCurrentBook() {
 function fillFormFields(data) {
   const book = parseJsonToBook(data);
   if(book instanceof Audiobook) {
-    document.getElementById("typeDisk").value = book.typeDisk;
-    document.getElementById("countDisk").value = book.countDisk;
+    $("#typeDisk").val(book.typeDisk);
+    $("#countDisk").val(book.countDisk);
   } else if (book instanceof Textbook) {
-    document.getElementById("typeScience").value = book.typeScience;
-    document.getElementById("typeInstitution").value = book.typeInstitution;
+    $("#typeScience").val(book.typeScience);
+    $("#typeInstitution").val(book.typeInstitution);
   }
-  document.getElementById("type").value = book.type;
+  $("#type").val(book.type);
   changePages(book.type);
-  document.getElementById("name").value = book.name;
-  document.getElementById("firstname").value = book.author.firstname;
-  document.getElementById("lastname").value = book.author.lastname;
-  document.getElementById("createdDate").value = book.CreatedDate;
-  document.getElementById("countPages").value = book.CountPages;
-  document.getElementById("cost").value = book.Cost;
+  $("#name").val(book.name);
+  $("#firstname").val(book.author.firstname);
+  $("#lastname").val(book.author.lastname);
+  $("#createdDate").val(book.CreatedDate);
+  $("#countPages").val(book.CountPages);
+  $("#cost").val(book.Cost);
 }
 
 function changePages(type) {  
   switch (type) {
     case "Book":
-      document.getElementById("audiobook-fields").hidden = true;
-      document.getElementById("textbook-fields").hidden = true;
+      $("#audiobook-fields").hide();
+      $("#textbook-fields").hide();
       break;
     case "Audiobook": 
-      document.getElementById("audiobook-fields").hidden = false;
-      document.getElementById("textbook-fields").hidden = true;
+      $("#audiobook-fields").show();
+      $("#textbook-fields").hide();
       break;
     case "Textbook": 
-      document.getElementById("audiobook-fields").hidden = true;
-      document.getElementById("textbook-fields").hidden = false;
+      $("#audiobook-fields").hide();
+      $("#textbook-fields").show();
       break;
     default:
       break;
@@ -305,8 +334,8 @@ async function loadIndexPage() {
 }
 
 function setIcons() {
-  document.getElementById("pic-logo").setAttribute("src", logo);
-  document.getElementById("pic-banner").setAttribute("src", banner);
+  $("#pic-logo").attr("src", logo);
+  $("#pic-banner").attr("src", banner);
 }
 
 //Search
@@ -329,15 +358,15 @@ function findBookById(id) {
 }
 
 function searchBooks() {
-  const query = document.getElementById('searchBooks').value || '';  
+  const query = $('#searchBooks').val() || '';  
   const gen = booksGenerator();
   let item = gen.next();
   while(!item.done) {
     if(item.value.name.includes(query) || item.value.author.toString().includes(query) || 
       item.value.type.includes(query) || query == '') {
-        document.getElementById(`Book${item.value.id}`).hidden = false;
+        $(`#Book${item.value.id}`).show();
     } else {
-      document.getElementById(`Book${item.value.id}`).hidden = true;      
+      $(`#Book${item.value.id}`).hide();
     }
     item = gen.next();
   }
@@ -393,9 +422,9 @@ function initWorker() {
 }
 
 function updateLabel(count) {
-  const label = document.getElementById('books-count');
+  const label = $('#books-count');
   if(count) {
-    label.innerHTML = `Counts of books: ${count}`;
+    label.html(`Counts of books: ${count}`);
   }
 }
 
@@ -411,33 +440,86 @@ function stopWorker() {
 //Validation
 
 function setValidation(formId = 'form-post-book') {  
-  document.getElementById(formId).onsubmit = function(ev) {
-    ev.preventDefault();
-    ev.stopImmediatePropagation();
-    if(formId == 'form-post-book')
-      postBook();
-    else {
-      console.log("PUT");
-      putBook();
+  $('#datetimepicker4').datetimepicker({
+    format: 'L'
+  });
+  // $(`#${formId}`).on("submit", function(ev) {
+  //   ev.preventDefault();
+  //   ev.stopImmediatePropagation();
+  //   if(formId == 'form-post-book')
+  //     postBook();
+  //   else {
+  //     console.log("PUT");
+  //     putBook();
+  //   }
+  // });
+
+  jQuery.validator.addMethod(
+    'regexp',
+    function (value, element, regexp) {
+        var re = new RegExp(regexp);
+        return this.optional(element) || re.test(value);
+    },
+    "Please check your input."
+  );
+  jQuery.validator.addClassRules({
+      name: {
+          required: true,
+          regexp: '^[а-яА-ЯёЁa-zA-Z0-9]+'
+      },
+      text: {
+          required: true,
+          regexp: '^[а-яА-ЯёЁa-zA-Z]+'
+      },
+      number: {
+          required: true,
+          regexp: '^[0-9]+',
+          min: 1,
+          maxlength: 3000
+      },
+      date: {
+          required: true
+      }
+  });
+
+  $(`#${formId}`).validate({
+    submitHandler: function(ev) {
+      if(formId == 'form-post-book')
+        postBook();
+      else {
+        console.log("PUT");
+        putBook();
+      }
+    },
+    invalidHandler: function(ev, validator) {
+      console.log("ERROR");
+      let errors = validator.numberOfInvalids();
+      if(errors) {
+        console.log("Error validation");
+      }
     }
-  }
-  document.getElementById("name").addEventListener("invalid", () => showErrorMessage("name-error", false));
-  document.getElementById("firstname")
-    .addEventListener("invalid", () => showErrorMessage("firstname-error", false));
-  document.getElementById("lastname")
-    .addEventListener("invalid", () => showErrorMessage("lastname-error", false));
-  document.getElementById("countPages")
-    .addEventListener("invalid", () => showErrorMessage("countPages-error", false, 'Please, enter field(only numbers, >= 10)'));
-  document.getElementById("cost")
-    .addEventListener("invalid", () => showErrorMessage("cost-error", false, 'Please, enter field(only numbers)'));
-  document.getElementById("createdDate")
-    .addEventListener("invalid", () => showErrorMessage("createdDate-error", false, 'Please, enter date'));
+  });
+  
+  // $("#name").on("invalid", () => showErrorMessage("name-error", false));
+  // $("#firstname")
+  //   .on("invalid", () => showErrorMessage("firstname-error", false));
+  // $("#lastname")
+  //   .on("invalid", () => showErrorMessage("lastname-error", false));
+  // $("#countPages")
+  //   .on("invalid", () => showErrorMessage("countPages-error", false, 'Please, enter field(only numbers, >= 10)'));
+  // $("#cost")
+  //   .on("invalid", () => showErrorMessage("cost-error", false, 'Please, enter field(only numbers)'));
+  // $("#createdDate")
+  //   .on("invalid", () => showErrorMessage("createdDate-error", false, 'Please, enter date'));
 }
 
 function showErrorMessage(idElement, isHidden, message) {
-  document.getElementById(idElement).hidden = isHidden;
+  if(isHidden)
+    $(`#${idElement}`).hide();
+  else
+    $(`#${idElement}`).show();
   if(message !== undefined)
-    document.getElementById(idElement).innerText = message;
+    $(`#${idElement}`).text(message);
 }
 
 function hideErrorMessages()

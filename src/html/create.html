@@ -13,53 +13,81 @@
         <option>Audiobook</option>
         <option>Textbook</option>
       </select>
-      <br /><br />
-      <label for="name">Name</label>
-      <input type="text" id="name" placeholder="Enter name" required pattern="\S{1,}\s?\S{1,}"/>
-      <label id="name-error" hidden style="color: red">Please, enter field(> 6 symbol)</label>
-      <br /><br />
-      <span>Author:</span>
-      <br />
-      <label for="firstname">Firstname</label>
-      <input type="text" id="firstname" required pattern="[A-Za-zА-Яа-яЁё]{2,}"/>
-      <label id="firstname-error" hidden style="color: red">Please, enter field(only letters, > 3 symbol)</label>
-      <br />
-      <label for="lastname">Lastname</label>
-      <input type="text" id="lastname" required pattern="[A-Za-zА-Яа-яЁё]{2,}"/>
-      <label id="lastname-error" hidden style="color: red">Please, enter field(only letters, > 3 symbol)</label>
-      <br /><br />
-      <label for="createdDate">Date of creation</label>
-      <input type="date" id="createdDate" required/>
-      <label id="createdDate-error" hidden style="color: red">Please, enter date</label>
-      <br /><br />
-      <label for="countPages">Count page</label>
-      <input type="number" id="countPages" required pattern="[0-9]{2,}"/>
-      <label id="countPages-error" hidden style="color: red">Please, enter field(only numbers, >= 10)</label>
-      <br /><br />
-      <label for="cost">Cost</label>
-      <input type="number" id="cost" required pattern="[0-9]{1,}"/>
-      <label id="cost-error" hidden style="color: red">Please, enter field(only numbers)</label>
-      <br /><br />
+      
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input class="name" type="text" id="name" name="name" placeholder="Enter name" required pattern="\S{1,}\s?\S{1,}"/>
+        <label id="name-error" hidden style="color: red">Please, enter field(> 6 symbol)</label>
+      </div>
+      
+      <span>Author:</span>      
+      <div class="form-group">
+        <label for="firstname">Firstname</label>
+        <input class="text" type="text" id="firstname" name="firstname" required pattern="[A-Za-zА-Яа-яЁё]{2,}"/>
+        <label id="firstname-error" hidden style="color: red">Please, enter field(only letters, > 3 symbol)</label>
+      </div>      
+      <div class="form-group">
+        <label for="lastname">Lastname</label>
+        <input class="text" type="text" id="lastname" name="lastname" required pattern="[A-Za-zА-Яа-яЁё]{2,}"/>
+        <label id="lastname-error" hidden style="color: red">Please, enter field(only letters, > 3 symbol)</label>
+      </div>  
+      
+      <div class="form-group col-sm-4">
+          <div class="form-group">
+              <label for="createdDate">Date of creation</label>
+              <div class="input-group date" id="datetimepicker4" data-target-input="nearest">
+                  <input type="text" id="createdDate" class="form-control datetimepicker-input" data-target="#datetimepicker4"/>
+                  <div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      <!-- <label for="createdDate">Date of creation</label>
+      <input class="date" type="date" id="createdDate" required/>
+      <label id="createdDate-error" hidden style="color: red">Please, enter date</label> -->
+      
+      <div class="form-group">
+        <label for="countPages">Count page</label>
+        <input class="number" type="number" name="countPages" id="countPages" required pattern="[0-9]{2,}"/>
+        <label id="countPages-error" hidden style="color: red">Please, enter field(only numbers, >= 10)</label>
+      </div>
+      
+      <div class="form-group">
+        <label for="cost">Cost</label>
+        <input class="number" type="number" id="cost" name="cost" required pattern="[0-9]{1,}"/>
+        <label id="cost-error" hidden style="color: red">Please, enter field(only numbers)</label>
+      </div>
+      
     </div>
     <div id="audiobook-fields" hidden>
-      <label for="typeDisk">Type disk</label>
-      <input type="text" id="typeDisk"/>
-      <br /><br />
-      <label for="countDisk">Count disk</label>
-      <input type="number" id="countDisk"/>
-      <br /><br />
+      <div class="form-group">
+        <label for="typeDisk">Type disk</label>
+        <input type="text" id="typeDisk"/>
+      </div>  
+      
+      <div class="form-group">
+        <label for="countDisk">Count disk</label>
+        <input type="number" id="countDisk"/>
+      </div>
+      
     </div>
     <div id="textbook-fields" hidden>
+      <div class="form-group">
         <label for="typeScience">Type science</label>
         <input type="text" id="typeScience"/>
-        <br /><br />
+      </div>
+        
+      <div class="form-group">
         <label for="typeInstitution">Type institution</label>
         <input type="text" id="typeInstitution"/>
-        <br /><br />
+      </div>
+        
       </div>
     <input type="submit" value="Submit" onclick="index.hideErrorMessages()"/>
     <input type="button" value="Cancel" onclick="index.goToIndex()" />
   </form>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.min.js"></script>
   <script src="../../dist/index.js"></script>
 </body>
 </html>

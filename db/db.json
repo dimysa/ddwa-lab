@@ -2,7 +2,7 @@
   "books": [
     {
       "id": 1,
-      "name": "FirstBook1123",
+      "name": "FirstBook11",
       "type": "Audiobook",
       "author": {
         "firstname": "Firstname",
@@ -10,7 +10,7 @@
       },
       "typeDisk": "CD",
       "countDisk": "3",
-      "createdDate": "2018-01-01",
+      "createdDate": "02/27/2018",
       "countPages": "250",
       "cost": "25"
     },
@@ -41,6 +41,18 @@
       "createdDate": "1111-11-11",
       "countPages": "100",
       "cost": "5"
+    },
+    {
+      "id": 4,
+      "name": "asdqwed",
+      "type": "Book",
+      "author": {
+        "firstname": "asdasqw",
+        "lastname": "qweadsqwe"
+      },
+      "createdDate": "1111-11-11",
+      "countPages": "123123",
+      "cost": "123123"
     }
   ]
 }

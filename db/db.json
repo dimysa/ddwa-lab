@@ -44,15 +44,15 @@
     },
     {
       "id": 4,
-      "name": "asdqwed",
+      "name": "asdasd",
       "type": "Book",
       "author": {
-        "firstname": "asdasqw",
-        "lastname": "qweadsqwe"
+        "firstname": "asdasdas",
+        "lastname": "asdasdas"
       },
-      "createdDate": "1111-11-11",
-      "countPages": "123123",
-      "cost": "123123"
+      "createdDate": "03/06/2018",
+      "countPages": "123",
+      "cost": "123"
     }
   ]
 }

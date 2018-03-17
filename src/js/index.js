@@ -70,6 +70,12 @@ function createTable(data, isCreate) {
       book = item;
     }
   }
+
+  $('#book-table tfoot th').each( function (i) {
+    var title = $('#book-table thead th').eq( $(this).index() ).text();
+    $(this).html( '<input type="text" placeholder="Search '+title+'" data-index="'+i+'" />' );
+  } );
+
   let table = $("#book-table").DataTable({    
     data: books,
     columns : [
@@ -97,6 +103,13 @@ function createTable(data, isCreate) {
     ordering: true,
     select: true
   });
+
+  $( table.table().container() ).on( 'keyup', 'tfoot input', function () {
+    table
+        .column( $(this).data('index') )
+        .search( this.value )
+        .draw();
+  } );
 
   $('.btnDelete').on('click', 'button', function(ev) {
     ev.preventDefault();

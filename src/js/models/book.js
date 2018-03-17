@@ -13,8 +13,10 @@ export default class Book {
   }
 
   set CreatedDate(date) {  
-    if(Date.parse(date) > Date.now())
+    if(Date.parse(date) > Date.now()){
       throw new ValidationError("createdDate", "Date must be less when now");
+      alert("Error data");
+    }
     this.createdDate = date;
   }
 
